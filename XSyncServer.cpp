@@ -50,6 +50,5 @@ long get_current_time_ms()
         snprintf(response, sizeof(response), "%ld", t2);
 
         zmq_send(socket, response, strlen(response), 0);
-        printf("Request received (t2): %ld ms, Response sent.\n", t2);
     }
 }
