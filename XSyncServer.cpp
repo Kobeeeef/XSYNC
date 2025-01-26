@@ -40,8 +40,6 @@ long get_current_time_ms() {
         char buffer[10];
         zmq_recv(socket, buffer, 10, 0); // Receive request
         const long t2 = get_current_time_ms(); // Record t2 (server receives request)
-
-        // Send response with t2
         char response[50];
         snprintf(response, sizeof(response), "%ld", t2);
 

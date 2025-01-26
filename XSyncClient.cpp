@@ -7,7 +7,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include <sys/time.h> // For setting system time
+#include <sys/time.h>
 #include <unistd.h>
 long get_current_time_ms() {
     struct timespec ts{};
@@ -17,8 +17,8 @@ long get_current_time_ms() {
 
 int set_system_time(long server_time_ms) {
     struct timeval tv{};
-    tv.tv_sec = server_time_ms / 1000;           // Seconds
-    tv.tv_usec = (server_time_ms % 1000) * 1000; // Microseconds
+    tv.tv_sec = server_time_ms / 1000;
+    tv.tv_usec = (server_time_ms % 1000) * 1000;
 
     // Set the system time
     if (settimeofday(&tv, NULL) < 0) {
@@ -56,8 +56,6 @@ int main() {
         } else {
             printf("Failed to update system time.\n");
         }
-
-        // Sleep for demonstration purposes before the next sync
-        usleep(100000);
+        usleep(50000);
     }
 }
