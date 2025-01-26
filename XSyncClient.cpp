@@ -2,13 +2,11 @@
 // Created by xbot on 1/26/25.
 //
 #include <zmq.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
 #include <sys/time.h>
-#include <unistd.h>
 long get_current_time_ms() {
     struct timespec ts{};
     clock_gettime(CLOCK_REALTIME, &ts);
