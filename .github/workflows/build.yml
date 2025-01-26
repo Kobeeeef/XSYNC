@@ -30,7 +30,7 @@ jobs:
           fi
           if [ "${{ matrix.platform }}" == "windows-x64" ]; then
             choco install mingw -y
-            set PATH=C:\\tools\\mingw64\\bin;%PATH%
+            echo "::add-path::C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin"
           fi
 
       - name: Configure and Build
