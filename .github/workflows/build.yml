@@ -10,61 +10,42 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        arch: [x64, arm]
+        platform: [linux-x64, linux-arm, windows-x64]
+
+    runs-on: ${{ matrix.platform == 'windows-x64' && 'windows-latest' || 'ubuntu-latest' }}
 
     steps:
-      # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Install dependencies and build on Linux
-      - name: Build for Linux (x64)
-        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'x64'
+      - name: Set up dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential libzmq3-dev
-          mkdir -p build/linux_x64
-          g++ -o build/linux_x64/XSyncServer XSyncServer.cpp -lzmq
-          g++ -o build/linux_x64/XSyncClient XSyncClient.cpp -lzmq
+          if [[ "${{ matrix.platform }}" == "linux-x64" || "${{ matrix.platform }}" == "linux-arm" ]]; then
+            sudo apt-get update && sudo apt-get install -y build-essential cmake libzmq3-dev
+          fi
+          if [[ "${{ matrix.platform }}" == "windows-x64" ]]; then
+            choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System' -y
+          fi
 
-      - name: Build for Linux (ARM) using Docker
-        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'arm'
-        uses: docker/setup-buildx-action@v2
-
-      - name: Run ARM Docker container
-        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'arm'
+      - name: Configure and Build
         run: |
-          docker run --rm -v $PWD:/workspace -w /workspace arm32v7/ubuntu:22.04 bash -c "
-          apt-get update &&
-          apt-get install -y build-essential libzmq3-dev gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf &&
-          mkdir -p build/linux_arm &&
-          arm-linux-gnueabihf-g++ -o build/linux_arm/XSyncServer XSyncServer.cpp -lzmq &&
-          arm-linux-gnueabihf-g++ -o build/linux_arm/XSyncClient XSyncClient.cpp -lzmq
-          "
+          if [[ "${{ matrix.platform }}" == "linux-x64" || "${{ matrix.platform }}" == "linux-arm" ]]; then
+            mkdir build && cd build
+            cmake .. -DCMAKE_BUILD_TYPE=Release
+            cmake --build .
+          fi
+          if [[ "${{ matrix.platform }}" == "windows-x64" ]]; then
+            mkdir build && cd build
+            cmake .. -G "Visual Studio 16 2019" -A x64
+            cmake --build . --config Release
+          fi
 
-      # Install dependencies and build on Windows
-      - name: Install dependencies (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          choco install mingw
-          choco install zeromq
-          refreshenv
-
-      - name: Build for Windows (x64)
-        if: matrix.os == 'windows-latest' && matrix.arch == 'x64'
-        run: |
-          mkdir build\windows_x64
-          g++ -o build\windows_x64\XSyncServer.exe XSyncServer.cpp -lzmq
-          g++ -o build\windows_x64\XSyncClient.exe XSyncClient.cpp -lzmq
-
-      # Upload artifacts
-      - name: Upload artifacts
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: XSync-binaries
-          path: build
+          name: ${{ matrix.platform }}-build
+          path: |
+            build/XSyncClient${{ matrix.platform == 'windows-x64' && '.exe' || '' }}
+            build/XSyncServer${{ matrix.platform == 'windows-x64' && '.exe' || '' }}
