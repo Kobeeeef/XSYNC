@@ -28,16 +28,10 @@ jobs:
           if [ "${{ matrix.platform }}" == "linux-x64" ] || [ "${{ matrix.platform }}" == "linux-arm" ]; then
             sudo apt-get update && sudo apt-get install -y build-essential cmake libzmq3-dev
           fi
-
-      - name: Install Visual Studio Build Tools
-        if: matrix.platform == 'windows-x64'
-        run: |
-          choco install visualstudio2019buildtools -y --package-parameters "
-            --add Microsoft.VisualStudio.Workload.VCTools
-            --includeRecommended
-            --includeOptional
-          "
-          refreshenv
+          if [ "${{ matrix.platform }}" == "windows-x64" ]; then
+            choco install mingw -y
+            set PATH=C:\\tools\\mingw64\\bin;%PATH%
+          fi
 
       - name: Configure and Build
         shell: bash
@@ -49,8 +43,8 @@ jobs:
           fi
           if [ "${{ matrix.platform }}" == "windows-x64" ]; then
             mkdir build && cd build
-            cmake .. -G "Visual Studio 16 2019" -A x64
-            cmake --build . --config Release
+            cmake .. -G "MinGW Makefiles" -DCMAKE_SH=\"CMAKE_SH-NOTFOUND\" -DCMAKE_BUILD_TYPE=Release
+            mingw32-make
           fi
 
       - name: Upload Artifacts
