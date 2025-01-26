@@ -18,58 +18,51 @@ jobs:
         arch: [x64, arm]
 
     steps:
-      # Checkout the repository
+      # Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
       # Install dependencies and build on Linux
-      - name: Install dependencies (Linux)
-        if: runner.os == 'Linux'
+      - name: Build for Linux (x64)
+        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'x64'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libzmq3-dev g++-multilib gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
-
-      - name: Install ZeroMQ for ARM
-        if: runner.os == 'Linux' && matrix.arch == 'arm'
-        run: |
-          wget https://github.com/zeromq/libzmq/releases/download/v4.3.4/zeromq-4.3.4.tar.gz
-          tar -xvf zeromq-4.3.4.tar.gz
-          cd zeromq-4.3.4
-          ./configure --host=arm-linux-gnueabihf CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ CXXFLAGS="-D__NO_FLOAT128"
-          make
-          sudo make install
-          cd ..
-
-      - name: Build (Linux x64)
-        if: runner.os == 'Linux' && matrix.arch == 'x64'
-        run: |
+          sudo apt-get install -y build-essential libzmq3-dev
           mkdir -p build/linux_x64
           g++ -o build/linux_x64/XSyncServer XSyncServer.cpp -lzmq
           g++ -o build/linux_x64/XSyncClient XSyncClient.cpp -lzmq
 
-      - name: Build (Linux ARM)
-        if: runner.os == 'Linux' && matrix.arch == 'arm'
+      - name: Build for Linux (ARM) using Docker
+        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'arm'
+        uses: docker/setup-buildx-action@v2
+
+      - name: Run ARM Docker container
+        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'arm'
         run: |
-          mkdir -p build/linux_arm
-          arm-linux-gnueabihf-g++ -o build/linux_arm/XSyncServer XSyncServer.cpp -lzmq
+          docker run --rm -v $PWD:/workspace -w /workspace arm32v7/ubuntu:22.04 bash -c "
+          apt-get update &&
+          apt-get install -y build-essential libzmq3-dev gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf &&
+          mkdir -p build/linux_arm &&
+          arm-linux-gnueabihf-g++ -o build/linux_arm/XSyncServer XSyncServer.cpp -lzmq &&
           arm-linux-gnueabihf-g++ -o build/linux_arm/XSyncClient XSyncClient.cpp -lzmq
+          "
 
       # Install dependencies and build on Windows
       - name: Install dependencies (Windows)
-        if: runner.os == 'Windows'
+        if: matrix.os == 'windows-latest'
         run: |
           choco install mingw
           choco install zeromq
           refreshenv
 
-      - name: Build (Windows x64)
-        if: runner.os == 'Windows' && matrix.arch == 'x64'
+      - name: Build for Windows (x64)
+        if: matrix.os == 'windows-latest' && matrix.arch == 'x64'
         run: |
           mkdir build\windows_x64
           g++ -o build\windows_x64\XSyncServer.exe XSyncServer.cpp -lzmq
           g++ -o build\windows_x64\XSyncClient.exe XSyncClient.cpp -lzmq
 
-      # Upload built artifacts
+      # Upload artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
