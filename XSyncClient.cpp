@@ -4,7 +4,6 @@
 #include <zmq.h>
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 #include <ctime>
 #include <sys/time.h>
 long get_current_time_ms() {

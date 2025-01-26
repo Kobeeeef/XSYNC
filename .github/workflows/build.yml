@@ -27,17 +27,26 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libzmq3-dev g++-multilib
+          sudo apt-get install -y build-essential g++-multilib libzmq3-dev
       - name: Build (Linux x64)
         if: runner.os == 'Linux' && matrix.arch == 'x64'
         run: |
           mkdir -p build/linux_x64
           g++ -o build/linux_x64/XSyncServer XSyncServer.cpp -lzmq
           g++ -o build/linux_x64/XSyncClient XSyncClient.cpp -lzmq
-      - name: Build (Linux ARM)
+      - name: Install dependencies for ARM (Linux)
         if: runner.os == 'Linux' && matrix.arch == 'arm'
         run: |
           sudo apt-get install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+          wget https://github.com/zeromq/libzmq/releases/download/v4.3.4/zeromq-4.3.4.tar.gz
+          tar -xvf zeromq-4.3.4.tar.gz
+          cd zeromq-4.3.4
+          ./configure --host=arm-linux-gnueabihf CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++
+          make
+          sudo make install
+      - name: Build (Linux ARM)
+        if: runner.os == 'Linux' && matrix.arch == 'arm'
+        run: |
           mkdir -p build/linux_arm
           arm-linux-gnueabihf-g++ -o build/linux_arm/XSyncServer XSyncServer.cpp -lzmq
           arm-linux-gnueabihf-g++ -o build/linux_arm/XSyncClient XSyncClient.cpp -lzmq
