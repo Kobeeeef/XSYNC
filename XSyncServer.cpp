@@ -1,0 +1,51 @@
+//
+// Created by xbot on 1/26/25.
+//
+
+#include <zmq.h>
+#include <cstdio>
+#include <cstring>
+#include <ctime>
+
+long get_current_time_ms() {
+    struct timespec ts{};
+    clock_gettime(CLOCK_REALTIME, &ts);
+    return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
+
+[[noreturn]] int main() {
+    void *context = zmq_ctx_new();
+    void *socket = zmq_socket(context, ZMQ_REP);
+    zmq_bind(socket, "tcp://*:3123");
+    printf("\033[34m");
+    printf(
+      ">>==============================================================<<\n"
+      "||                                                              ||\n"
+      "||  __  ________   ___   _  ____           _  _    ___   ___    ||\n"
+      "||  \\ \\/ / ___\\ \\ / / \\ | |/ ___|         | || |  ( _ ) ( _ )   ||\n"
+      "||   \\  /\\___ \\\\ V /|  \\| | |      _____  | || |_ / _ \\ / _ \\   ||\n"
+      "||   /  \\ ___) || | | |\\  | |___  |_____| |__   _| (_) | (_) |  ||\n"
+      "||  /_/\\_\\____/ |_| |_| \\_|\\____|            |_|  \\___/ \\___/   ||\n"
+      "||                                                              ||\n"
+      "||   _____ _   _ _____   __  __    _  _____ ____  _____  __     ||\n"
+      "||  |_   _| | | | ____| |  \\/  |  / \\|_   _|  _ \\|_ _\\ \\/ /     ||\n"
+      "||    | | | |_| |  _|   | |\\/| | / _ \\ | | | |_) || | \\  /      ||\n"
+      "||    | | |  _  | |___  | |  | |/ ___ \\| | |  _ < | | /  \\      ||\n"
+      "||    |_| |_| |_|_____| |_|  |_/_/   \\_\\_| |_| \\_\\___/_/\\_\\     ||\n"
+      "||                                                              ||\n"
+      ">>==============================================================<<\n"
+  );
+    printf("Christian Algorithm Started.\n");
+    while (1) {
+        char buffer[10];
+        zmq_recv(socket, buffer, 10, 0); // Receive request
+        const long t2 = get_current_time_ms(); // Record t2 (server receives request)
+
+        // Send response with t2
+        char response[50];
+        snprintf(response, sizeof(response), "%ld", t2);
+
+        zmq_send(socket, response, strlen(response), 0);
+        printf("Request received (t2): %ld ms, Response sent.\n", t2);
+    }
+}
