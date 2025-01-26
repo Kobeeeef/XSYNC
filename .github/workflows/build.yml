@@ -27,23 +27,26 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential g++-multilib libzmq3-dev
+          sudo apt-get install -y build-essential libzmq3-dev g++-multilib gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+
+      - name: Install ZeroMQ for ARM
+        if: runner.os == 'Linux' && matrix.arch == 'arm'
+        run: |
+          wget https://github.com/zeromq/libzmq/releases/download/v4.3.4/zeromq-4.3.4.tar.gz
+          tar -xvf zeromq-4.3.4.tar.gz
+          cd zeromq-4.3.4
+          ./configure --host=arm-linux-gnueabihf CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ CXXFLAGS="-D__NO_FLOAT128"
+          make
+          sudo make install
+          cd ..
+
       - name: Build (Linux x64)
         if: runner.os == 'Linux' && matrix.arch == 'x64'
         run: |
           mkdir -p build/linux_x64
           g++ -o build/linux_x64/XSyncServer XSyncServer.cpp -lzmq
           g++ -o build/linux_x64/XSyncClient XSyncClient.cpp -lzmq
-      - name: Install dependencies for ARM (Linux)
-        if: runner.os == 'Linux' && matrix.arch == 'arm'
-        run: |
-          sudo apt-get install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
-          wget https://github.com/zeromq/libzmq/releases/download/v4.3.4/zeromq-4.3.4.tar.gz
-          tar -xvf zeromq-4.3.4.tar.gz
-          cd zeromq-4.3.4
-          ./configure --host=arm-linux-gnueabihf CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++
-          make
-          sudo make install
+
       - name: Build (Linux ARM)
         if: runner.os == 'Linux' && matrix.arch == 'arm'
         run: |
@@ -58,6 +61,7 @@ jobs:
           choco install mingw
           choco install zeromq
           refreshenv
+
       - name: Build (Windows x64)
         if: runner.os == 'Windows' && matrix.arch == 'x64'
         run: |
