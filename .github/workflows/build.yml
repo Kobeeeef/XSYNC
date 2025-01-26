@@ -1,0 +1,64 @@
+name: Build XSync
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        arch: [x64, arm]
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Install dependencies and build on Linux
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libzmq3-dev g++-multilib
+      - name: Build (Linux x64)
+        if: runner.os == 'Linux' && matrix.arch == 'x64'
+        run: |
+          mkdir -p build/linux_x64
+          g++ -o build/linux_x64/XSyncServer XSyncServer.cpp -lzmq
+          g++ -o build/linux_x64/XSyncClient XSyncClient.cpp -lzmq
+      - name: Build (Linux ARM)
+        if: runner.os == 'Linux' && matrix.arch == 'arm'
+        run: |
+          sudo apt-get install -y gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+          mkdir -p build/linux_arm
+          arm-linux-gnueabihf-g++ -o build/linux_arm/XSyncServer XSyncServer.cpp -lzmq
+          arm-linux-gnueabihf-g++ -o build/linux_arm/XSyncClient XSyncClient.cpp -lzmq
+
+      # Install dependencies and build on Windows
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          choco install mingw
+          choco install zeromq
+          refreshenv
+      - name: Build (Windows x64)
+        if: runner.os == 'Windows' && matrix.arch == 'x64'
+        run: |
+          mkdir build\windows_x64
+          g++ -o build\windows_x64\XSyncServer.exe XSyncServer.cpp -lzmq
+          g++ -o build\windows_x64\XSyncClient.exe XSyncClient.cpp -lzmq
+
+      # Upload built artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: XSync-binaries
+          path: build
