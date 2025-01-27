@@ -28,7 +28,7 @@ int set_system_time(long server_time_ms) {
 [[noreturn]] int main() {
     void *context = zmq_ctx_new();
     void *socket = zmq_socket(context, ZMQ_REQ);
-    zmq_connect(socket, "tcp://localhost:3123");
+    zmq_connect(socket, "tcp://10.0.0.106:3123");
 
     printf("Christian Algorithm Time Client started...\n");
     while (1) {
