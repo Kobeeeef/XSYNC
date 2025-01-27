@@ -16,7 +16,7 @@ https://github.com/user-attachments/assets/4b6089e9-8d42-4521-bc91-5b5ee709169f
 
 ### Prebuilt Executables
 
-Prebuilt executables are available for Linux x86 and Linux ARM architectures in this repository's [Releases](https://github.com/yourusername/XSYNC/releases) section.
+Prebuilt executables are available for Linux x86 and Linux ARM architectures in this repository's [Releases](https://github.com/Kobeeeef/XSYNC/releases/latest) section.
 
 1. Download the appropriate archive for your architecture.
 2. Unzip the archive:
