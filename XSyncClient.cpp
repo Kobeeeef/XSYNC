@@ -26,10 +26,15 @@ int set_system_time(long server_time_ms) {
     return 0;
 }
 
-[[noreturn]] int main() {
+[[noreturn]] int main(int argc, char *argv[]) {
+    std::string ip = "10.4.88.2"; // default rio IP
+    if (argc == 2) {
+        ip = argv[1];
+    }
+
     void *context = zmq_ctx_new();
     void *socket = zmq_socket(context, ZMQ_REQ);
-    const std::string ip = "10.0.0.106";
+
     const std::string address = "tcp://" + ip + ":3123";
     if (zmq_connect(socket, address.c_str()) == 0) {
         printf("Connected to %s\n", address.c_str());
