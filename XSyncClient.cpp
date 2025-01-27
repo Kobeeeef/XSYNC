@@ -46,7 +46,6 @@ void smooth_time_adjuster() {
             settimeofday(&tv, NULL);
 
             // Update the remaining offset atomically
-            current_offset_ms.fetch_sub(adjustment);
         }
 
         // Sleep for the adjustment interval
