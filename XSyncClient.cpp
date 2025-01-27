@@ -31,7 +31,7 @@ int set_system_time(long server_time_ms) {
     if (argc == 2) {
         ip = argv[1];
     }
-    int hwm = 1;
+    const int hwm = 1;
     void *context = zmq_ctx_new();
     void *socket = zmq_socket(context, ZMQ_REQ);
     zmq_setsockopt(socket, ZMQ_SNDHWM, &hwm, sizeof(hwm));
@@ -52,17 +52,24 @@ int set_system_time(long server_time_ms) {
         const long t4 = get_current_time_ms(); // Record t4 (client receives response)
         const long t2 = atol(buffer); // Record t2 (Servers Time)
 
+
+        const long offset = t2 - ((t1 + t4) / 2);
+
+        if (offset == 0)
+        {
+            printf("System already synchronized!\n");
+            continue;
+        }
         printf("Times:\n");
         printf("t1 (Request sent): %ld ms\n", t1);
         printf("t2 (Server received request): %ld ms\n", t2);
         printf("t4 (Response received): %ld ms\n", t4);
-        const long offset = t2 - ((t1 + t4) / 2);
         printf("Calculated offset: %ld ms\n", offset);
         if (set_system_time(t4 + offset) == 0) {
             printf("System time updated successfully.\n");
         } else {
             printf("Failed to update system time.\n");
         }
-        usleep(1000);
+        usleep(100);
     }
 }
