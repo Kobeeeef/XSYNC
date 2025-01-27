@@ -30,7 +30,6 @@ jobs:
           fi
           if [ "${{ matrix.platform }}" == "windows-x64" ]; then
             choco install mingw -y
-            echo "::add-path::C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin"
           fi
 
       - name: Configure and Build
@@ -43,8 +42,11 @@ jobs:
           fi
           if [ "${{ matrix.platform }}" == "windows-x64" ]; then
             mkdir build && cd build
-            cmake .. -G "MinGW Makefiles" -DCMAKE_SH=\"CMAKE_SH-NOTFOUND\" -DCMAKE_BUILD_TYPE=Release
-            mingw32-make
+            cmake .. -G "MinGW Makefiles" -DCMAKE_SH=\"CMAKE_SH-NOTFOUND\" -DCMAKE_BUILD_TYPE=Release ^
+              -DCMAKE_MAKE_PROGRAM=C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin\\mingw32-make.exe ^
+              -DCMAKE_C_COMPILER=C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin\\gcc.exe ^
+              -DCMAKE_CXX_COMPILER=C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin\\g++.exe
+            C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin\\mingw32-make.exe
           fi
 
       - name: Upload Artifacts
