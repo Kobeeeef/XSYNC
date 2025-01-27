@@ -28,16 +28,16 @@ jobs:
           if [ "${{ matrix.platform }}" == "linux-x64" ] || [ "${{ matrix.platform }}" == "linux-arm" ]; then
             sudo apt-get update && sudo apt-get install -y build-essential cmake libzmq3-dev
           fi
-          if [ "${{ matrix.platform }}" == "windows-x64" ]; then
-            choco install mingw -y
-            choco install pkgconfiglite -y
-            git clone https://github.com/zeromq/libzmq.git
-            cd libzmq
-            mkdir build && cd build
-            cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DENABLE_DRAFTS=OFF -DZMQ_BUILD_TESTS=OFF -DZMQ_USE_SELECT=OFF -DZMQ_USE_EPOLL=ON
-            mingw32-make
-            mingw32-make install
-          fi
+#          if [ "${{ matrix.platform }}" == "windows-x64" ]; then
+#            choco install mingw -y
+#            choco install pkgconfiglite -y
+#            git clone https://github.com/zeromq/libzmq.git
+#            cd libzmq
+#            mkdir build && cd build
+#            cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DENABLE_DRAFTS=OFF -DZMQ_BUILD_TESTS=OFF -DZMQ_USE_SELECT=OFF -DZMQ_USE_EPOLL=ON
+#            mingw32-make
+#            mingw32-make install
+#          fi
 
       - name: Configure and Build
         shell: bash
@@ -47,14 +47,14 @@ jobs:
             cmake .. -DCMAKE_BUILD_TYPE=Release
             cmake --build .
           fi
-          if [ "${{ matrix.platform }}" == "windows-x64" ]; then
-            mkdir build && cd build
-            cmake .. -G "MinGW Makefiles" -DCMAKE_SH=\"CMAKE_SH-NOTFOUND\" -DCMAKE_BUILD_TYPE=Release ^
-              -DCMAKE_MAKE_PROGRAM=C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin\\mingw32-make.exe ^
-              -DCMAKE_C_COMPILER=C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin\\gcc.exe ^
-              -DCMAKE_CXX_COMPILER=C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin\\g++.exe
-            C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin\\mingw32-make.exe
-          fi
+#          if [ "${{ matrix.platform }}" == "windows-x64" ]; then
+#            mkdir build && cd build
+#            cmake .. -G "MinGW Makefiles" -DCMAKE_SH=\"CMAKE_SH-NOTFOUND\" -DCMAKE_BUILD_TYPE=Release ^
+#              -DCMAKE_MAKE_PROGRAM=C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin\\mingw32-make.exe ^
+#              -DCMAKE_C_COMPILER=C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin\\gcc.exe ^
+#              -DCMAKE_CXX_COMPILER=C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin\\g++.exe
+#            C:\\ProgramData\\chocolatey\\lib\\mingw\\tools\\install\\mingw64\\bin\\mingw32-make.exe
+#          fi
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
