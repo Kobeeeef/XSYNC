@@ -30,6 +30,7 @@ jobs:
           fi
           if [ "${{ matrix.platform }}" == "windows-x64" ]; then
             choco install mingw -y
+            choco install pkgconfiglite -y
           fi
 
       - name: Configure and Build
