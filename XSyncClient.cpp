@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
+#include <string>
 #include <sys/time.h>
 long get_current_time_ms() {
     struct timespec ts{};
@@ -28,9 +29,13 @@ int set_system_time(long server_time_ms) {
 [[noreturn]] int main() {
     void *context = zmq_ctx_new();
     void *socket = zmq_socket(context, ZMQ_REQ);
-    zmq_connect(socket, "tcp://10.0.0.106:3123");
-
-    printf("Christian Algorithm Time Client started...\n");
+    const std::string ip = "10.0.0.106";
+    const std::string address = "tcp://" + ip + ":3123";
+    if (zmq_connect(socket, address.c_str()) == 0) {
+        printf("Connected to %s\n", address.c_str());
+    } else {
+        printf("Failed to connect to %s\n", address.c_str());
+    }
     while (1) {
         const long t1 = get_current_time_ms(); // Record t1 (client sends request)
         zmq_send(socket, "REQ", 3, 0);
