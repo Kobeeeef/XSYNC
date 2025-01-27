@@ -25,30 +25,29 @@ int set_system_time(long server_time_ms) {
     return 0;
 }
 
-int main() {
+[[noreturn]] int main() {
     void *context = zmq_ctx_new();
     void *socket = zmq_socket(context, ZMQ_REQ);
     zmq_connect(socket, "tcp://localhost:3123");
 
     printf("Christian Algorithm Time Client started...\n");
     while (1) {
-        long t1 = get_current_time_ms(); // Record t1 (client sends request)
+        const long t1 = get_current_time_ms(); // Record t1 (client sends request)
         zmq_send(socket, "REQ", 3, 0);
 
         // Wait for response
         char buffer[50];
         zmq_recv(socket, buffer, 50, 0);
-        long t4 = get_current_time_ms(); // Record t4 (client receives response)
-        long t2 = atol(buffer); // Record t2 (Servers Time)
+        const long t4 = get_current_time_ms(); // Record t4 (client receives response)
+        const long t2 = atol(buffer); // Record t2 (Servers Time)
 
         printf("Times:\n");
         printf("t1 (Request sent): %ld ms\n", t1);
         printf("t2 (Server received request): %ld ms\n", t2);
         printf("t4 (Response received): %ld ms\n", t4);
-        long offset = t2 - ((t1 + t4) / 2);
+        const long offset = t2 - ((t1 + t4) / 2);
         printf("Calculated offset: %ld ms\n", offset);
-        long adjusted_time = t4 + offset;
-        if (set_system_time(adjusted_time) == 0) {
+        if (set_system_time(t4 + offset) == 0) {
             printf("System time updated successfully.\n");
         } else {
             printf("Failed to update system time.\n");

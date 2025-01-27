@@ -31,6 +31,12 @@ jobs:
           if [ "${{ matrix.platform }}" == "windows-x64" ]; then
             choco install mingw -y
             choco install pkgconfiglite -y
+            git clone https://github.com/zeromq/libzmq.git
+            cd libzmq
+            mkdir build && cd build
+            cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+            mingw32-make
+            mingw32-make install
           fi
 
       - name: Configure and Build
