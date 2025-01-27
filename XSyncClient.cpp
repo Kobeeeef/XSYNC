@@ -31,10 +31,11 @@ int set_system_time(long server_time_ms) {
     if (argc == 2) {
         ip = argv[1];
     }
-
+    int hwm = 1;
     void *context = zmq_ctx_new();
     void *socket = zmq_socket(context, ZMQ_REQ);
-
+    zmq_setsockopt(socket, ZMQ_SNDHWM, &hwm, sizeof(hwm));
+    zmq_setsockopt(socket, ZMQ_RCVHWM, &hwm, sizeof(hwm));
     const std::string address = "tcp://" + ip + ":3123";
     if (zmq_connect(socket, address.c_str()) == 0) {
         printf("Connected to %s\n", address.c_str());
@@ -62,6 +63,6 @@ int set_system_time(long server_time_ms) {
         } else {
             printf("Failed to update system time.\n");
         }
-        usleep(50000);
+        usleep(1000);
     }
 }
