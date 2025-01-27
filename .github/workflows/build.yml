@@ -12,7 +12,7 @@ jobs:
   build:
     strategy:
       matrix:
-        platform: [linux-x64, linux-arm, windows-x64]
+        platform: [linux-x64, linux-arm]
 
     runs-on: ${{ matrix.platform == 'windows-x64' && 'windows-latest' || 'ubuntu-latest' }}
 
