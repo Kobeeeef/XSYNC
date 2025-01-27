@@ -34,7 +34,7 @@ jobs:
             git clone https://github.com/zeromq/libzmq.git
             cd libzmq
             mkdir build && cd build
-            cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+            cmake .. -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release -DENABLE_DRAFTS=OFF -DZMQ_BUILD_TESTS=OFF -DZMQ_USE_SELECT=OFF -DZMQ_USE_EPOLL=ON
             mingw32-make
             mingw32-make install
           fi
