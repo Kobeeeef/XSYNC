@@ -16,9 +16,13 @@ long get_current_time_ms()
 
 [[noreturn]] int main()
 {
+    const int hwm = 1; // Allow only 1 message in each client's queue
     void* context = zmq_ctx_new();
     void* socket = zmq_socket(context, ZMQ_REP);
+    zmq_setsockopt(socket, ZMQ_SNDHWM, &hwm, sizeof(hwm));
+    zmq_setsockopt(socket, ZMQ_RCVHWM, &hwm, sizeof(hwm));
     zmq_bind(socket, "tcp://*:3123");
+
     printf("\033[34m");
     printf(
         ">>==============================================================<<\n"
