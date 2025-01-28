@@ -78,9 +78,9 @@ void *create_socket(void *context, const std::string &address, const int hwm, co
         const long t4 = get_current_time_ms(); // Record t4 (client receives response)
         const long t2 = atol(buffer);          // Record t2 (Server's Time)
         const long offset = t2 - ((t1 + t4) / 2);
-
-        if (offset == 0) {
-            printf("System already synchronized!\n");
+        if (std::abs(offset) <= 1) {
+            printf("System already synchronized, offset: %ld\n", offset);
+            usleep(10000);
             continue;
         }
 
